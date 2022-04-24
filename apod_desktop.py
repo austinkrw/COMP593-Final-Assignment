@@ -20,6 +20,8 @@ from sys import argv, exit
 from datetime import datetime, date
 from hashlib import sha256
 from os import path
+import sqlite3
+import os
 
 def main():
 
@@ -157,7 +159,27 @@ def create_image_db(db_path):
     :param db_path: Path of .db file
     :returns: None
     """
-    return #TODO
+    # if db_path does not lead to a file, create it, if it does, skip
+    if os.path.isfile(db_path) == False:
+
+        myConnection = sqlite3.connect(db_path)
+        myCursor = myConnection.cursor()
+
+        createIMAGEStable = """ CREATE TABLE IF NOT EXISTS images(
+                            id integer PRIMARY KEY,
+                            path text NOT NULL,
+                            size text NOT NULL,
+                            hash text NOT NULL,
+                            date_downloaded text NOT NULL
+                            );"""
+
+        myCursor.execute(createIMAGEStable)
+        myConnection.commit()
+        myConnection.close()
+        return
+
+    else:
+        return
 
 def add_image_to_db(db_path, image_path, image_size, image_sha256):
     """
