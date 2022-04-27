@@ -11,17 +11,19 @@ Usage:
 Parameters:
   image_dir_path = Full path of directory in which APOD image is stored
   apod_date = APOD image date (format: YYYY-MM-DD)
-
-History:
-  Date        Author    Description
-  2022-03-11  J.Dalby   Initial creation
 """
-from sys import argv, exit
+
+from sys import argv, exit, getsizeof
 from datetime import datetime, date
 from hashlib import sha256
 from os import path
+from xmlrpc.client import DateTime
 import sqlite3
 import os
+import sys
+import requests
+import re
+
 
 def main():
 
@@ -39,10 +41,12 @@ def main():
     apod_info_dict = get_apod_info(apod_date)
     
     # Download today's APOD
-    image_url = "TODO"
+    image_url = apod_info_dict["url"]
+    get_image_name = re.search(".*\/(.*)", image_url)
+    image_name = get_image_name.group(1)
     image_msg = download_apod_image(image_url)
-    image_sha256 = "TODO"
-    image_size = -1 # TODO
+    image_sha256 = sha256(image_msg).hexdigest()
+    image_size = os.path.getsize(image_dir_path + "\\" + image_name)
     image_path = get_image_path(image_url, image_dir_path)
 
     # Print APOD image information
@@ -108,7 +112,10 @@ def get_image_path(image_url, dir_path):
     :param dir_path: Path of directory in which image is saved locally
     :returns: Path at which image is saved locally
     """
-    return "TODO"
+
+    path = (dir_path + image_url)
+
+    return path
 
 def get_apod_info(date):
     """
@@ -118,7 +125,20 @@ def get_apod_info(date):
     :param date: APOD date formatted as YYYY-MM-DD
     :returns: Dictionary of APOD info
     """    
-    return {"todo" : "TODO"}
+
+    # sets apod_date to the second command line paramter, if not specified, use todays date
+    if len(argv) >= 3:
+        apod_date = argv[2]
+    else:
+        # for some reason the regular "date" class used above did not work here, so I used a different method and class to get the current date
+        apod_date = sqlite3.Date.today().isoformat()
+
+    #
+    parameters = {"api_key": "2Dcnsp11pIh4C0XZMqKKpm12tMrtxQcPzX9ahrmS", "thumbs": True, "date": apod_date}
+    req = requests.get("https://api.nasa.gov/planetary/apod", params=parameters)
+    apod_info = req.json()
+
+    return apod_info
 
 def print_apod_info(image_url, image_path, image_size, image_sha256):
     """
@@ -130,7 +150,13 @@ def print_apod_info(image_url, image_path, image_size, image_sha256):
     :param image_sha256: SHA-256 of image
     :returns: None
     """    
-    return #TODO
+
+    print("Image URL: ", image_url)
+    print("Image Path: ", image_path)
+    print("Image Size: ", image_size, " KB")
+    print("Image Hash: ", image_sha256)
+
+    return
 
 def download_apod_image(image_url):
     """
@@ -139,7 +165,15 @@ def download_apod_image(image_url):
     :param image_url: URL of image
     :returns: Response message that contains image data
     """
-    return "TODO"
+ 
+    get_img_name = re.search(".*\/(.*)", image_url)
+    img_name = get_img_name.group(1)
+    path = argv[1] + "\\" + img_name
+    img_data = requests.get(image_url).content
+    with open(path, "wb") as handle:
+        handle.write(img_data)
+
+    return img_data
 
 def save_image_file(image_msg, image_path):
     """
@@ -150,6 +184,9 @@ def save_image_file(image_msg, image_path):
     :param image_path: Path to save image file
     :returns: None
     """
+
+
+
     return #TODO
 
 def create_image_db(db_path):
@@ -159,6 +196,7 @@ def create_image_db(db_path):
     :param db_path: Path of .db file
     :returns: None
     """
+
     # if db_path does not lead to a file, create it, if it does, skip
     if os.path.isfile(db_path) == False:
 

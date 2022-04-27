@@ -1,7 +1,38 @@
 2022-03-28
 - created work log
+- copied script template from D2L
 
 2022-04-24
 12:30am - 1:30am
 - completed the create_image_db function
 - I am 85% sure I coded it correctly but I wont be able to test it until I finish some more things
+
+2022-04-26
+9:00pm - 12:30am
+- completed get_apod_info function
+- I had some trouble passing in parameters through the GET request but I figured it out
+- links that helped me:
+    https://docs.python-requests.org/en/latest/user/quickstart/
+    https://pypi.org/project/requests/
+    https://github.com/austinkrw/COMP593/blob/main/LAB_2_CONSUMING_WEB_APIs.ipynb
+
+- completed download_apod_image function
+- I had to use some regex to separate the img file name from the rest of the URL
+- regex helpful links:
+    https://www.w3schools.com/python/python_regex.asp
+    https://regex101.com/
+- I struggled trying to get the images to save to the proper file instead of the current directory
+- link that helped me:
+    https://towardsdatascience.com/how-to-download-an-image-using-python-38a75cfa21c
+
+- completed get_image_path function
+- no issues here, this one was simple
+
+- completed print_apod_info function
+- no issues here either, this one was simple, just printing variables, nothing returned
+
+
+
+
+
+
